@@ -1,10 +1,10 @@
 
 
-const io = require('socket.io-client');
-const os = require('os-utils');
-const config =  require ('./config');
+var io = require('socket.io-client');
+var os = require('os-utils');
+var config =  require ('./config');
 
-const socket  = io(config.server, {
+var socket  = io(config.server, {
     query: {
         machine : config.machine,
         type: 'machine'
@@ -16,10 +16,10 @@ const socket  = io(config.server, {
 console.log(config);
 
 
-let machine_id = 'none';
+var machine_id = 'none';
 
 
-socket.on('connect', () => {
+socket.on('connect', function () {
     console.log('connect');
 
 
@@ -27,17 +27,17 @@ socket.on('connect', () => {
 });
 
 
-socket.on('registred', (socket_id) => {
+socket.on('registred', function (socket_id) {
     console.log('ON registred');
     machine_id = socket_id;
     // console.log(machine_id);
 });
 
-socket.on('disconnect', () => {
+socket.on('disconnect', function () {
     console.log('disconnect')
 });
 
-setInterval(() => {
+setInterval(function () {
     // console.log(machine_id);
     os.cpuUsage(function(v) {
         socket.emit('cpu', Math.round(v * 100))
