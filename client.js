@@ -4,7 +4,7 @@ const io = require('socket.io-client');
 const os = require('os-utils');
 const config =  require ('./config');
 
-const socket  = io('http://localhost:3000', {
+const socket  = io(config.server, {
     query: {
         machine : config.machine,
         type: 'machine'
