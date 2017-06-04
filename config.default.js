@@ -1,3 +1,3 @@
 module.exports =  {
-    machine: 2
+    machine: 1
 };

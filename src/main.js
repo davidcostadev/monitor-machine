@@ -11,7 +11,7 @@ const View = require('./View.js');
 
 const app = express();
 
-const server = http.Server(app);
+const server = http.Server(app, '0.0.0.0');
 const io = new SocketIO(server);
 
 
@@ -34,8 +34,11 @@ const machines = {};
 const views    = [];
 const sockets  = {};
 
+io.set('origins', '*:*');
+
 io.on('connection', socket => {
     console.log('[connection]')
+    var clientIp = socket.request.connection.remoteAddress;
 
     if(socket.handshake.query.type === 'machine') {
         let machine = socket.handshake.query.machine;
