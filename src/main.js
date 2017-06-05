@@ -6,8 +6,8 @@ const http = require('http');
 const express = require('express');
 const SocketIO = require('socket.io');
 
-const Machine = require('./Machine.js');
-const View = require('./View.js');
+// const Machine = require('./Machine.js');
+// const View = require('./View.js');
 
 const app = express();
 
@@ -19,7 +19,7 @@ app.get('/', (request, response) => {
     response.send('OI');
 });
 
-const port = 3000;
+const port = 3050;
 
 
 

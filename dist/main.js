@@ -6,8 +6,8 @@ var http = require('http');
 var express = require('express');
 var SocketIO = require('socket.io');
 
-var Machine = require('./Machine.js');
-var View = require('./View.js');
+// const Machine = require('./Machine.js');
+// const View = require('./View.js');
 
 var app = express();
 
@@ -18,7 +18,7 @@ app.get('/', function (request, response) {
     response.send('OI');
 });
 
-var port = 3000;
+var port = 3050;
 
 server.listen(port, function () {
     console.log('[INFO] Listening on *:' + port);
