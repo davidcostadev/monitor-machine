@@ -1,138 +1,126 @@
-
+'use strict';
 
 console.log('start');
 
-const http = require('http');
-const express = require('express');
-const SocketIO = require('socket.io');
+var http = require('http');
+var express = require('express');
+var SocketIO = require('socket.io');
 
-const Machine = require('./Machine.js');
-const View = require('./View.js');
+var Machine = require('./Machine.js');
+var View = require('./View.js');
 
-const app = express();
+var app = express();
 
-const server = http.Server(app, '0.0.0.0');
-const io = new SocketIO(server);
+var server = http.Server(app, '0.0.0.0');
+var io = new SocketIO(server);
 
-
-app.get('/', (request, response) => {
+app.get('/', function (request, response) {
     response.send('OI');
 });
 
-const port = 3000;
+var port = 3000;
 
-
-
-server.listen(port, () => {
+server.listen(port, function () {
     console.log('[INFO] Listening on *:' + port);
 });
 
 console.log('before');
 
-
-const machines = {};
-const views    = [];
-const sockets  = {};
+var machines = {};
+var views = [];
+var sockets = {};
 
 io.set('origins', '*:*');
 
-io.on('connection', socket => {
-    console.log('[connection]')
+io.on('connection', function (socket) {
+    console.log('[connection]');
     var clientIp = socket.request.connection.remoteAddress;
-    let machine = socket.handshake.query.machine;
+    var machine = socket.handshake.query.machine;
 
-    if(socket.handshake.query.type === 'machine') {
-        
+    if (socket.handshake.query.type === 'machine') {
+
         var currentUser = {
             id: socket.id,
-            machine
+            machine: machine
         };
 
         console.log(currentUser);
-
 
         machines[machine] = socket.id;
-        
     } else {
-        let currentUser = {
-            id: socket.id,
+        var _currentUser = {
+            id: socket.id
         };
 
-        console.log(currentUser);
+        console.log(_currentUser);
 
         views.push(socket);
     }
 
     sockets[socket.id] = machine;
 
-
-
     socket.emit('registred', socket.id);
 
-    socket.on('cpu', (data) => {
-        console.log( 'CPU Usage (%): '+ sockets[socket.id]+'-'  + data );
+    socket.on('cpu', function (data) {
+        console.log('CPU Usage (%): ' + sockets[socket.id] + '-' + data);
 
         machine = sockets[socket.id];
 
-        views.forEach(socket => {
+        views.forEach(function (socket) {
 
-            let json = {
-                machine,
+            var json = {
+                machine: machine,
                 cpu: data
             };
             console.log(json);
             socket.emit('get_cpu', json);
-        }); 
+        });
     });
 
-    socket.on('memory', (data) => {
-        console.log( 'Memory Usage (%): '+ sockets[socket.id]+'-'  + data );
+    socket.on('memory', function (data) {
+        console.log('Memory Usage (%): ' + sockets[socket.id] + '-' + data);
 
         machine = sockets[socket.id];
 
-        views.forEach(socket => {
+        views.forEach(function (socket) {
 
-            let json = {
-                machine,
+            var json = {
+                machine: machine,
                 memory: data
             };
             console.log(json);
             socket.emit('get_memory', json);
-        }); 
+        });
     });
 
-    socket.on('myPing', () => {
+    socket.on('myPing', function () {
         console.log('ON myPing');
         socket.emit('myPong');
     });
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', function () {
         console.log(socket.id);
 
-        const old = socket.id;
-        if (socket.handshake.query.type === 'machine') { 
+        var old = socket.id;
+        if (socket.handshake.query.type === 'machine') {
             delete machines[socket.handshake.query.machine];
             delete sockets[socket.id];
         } else {
-            let indexDelete = 0;
-            views.forEach((socket, index) => {
+            var indexDelete = 0;
+            views.forEach(function (socket, index) {
                 if (old == socket.id) {
                     indexDelete = index;
                 }
             });
 
             views.splice(indexDelete, 1);
-        }     
-        
+        }
 
         // if (findIndex(users, currentUser.id) > -1) users.splice(findIndex(users, currentUser.id), 1);
         // console.log('[INFO] User ' + currentUser.nick + ' disconnected!');
         // socket.broadcast.emit('userDisconnect', {nick: currentUser.nick});
     });
-
-
 });
-
 
 //
 // // import DoSomething from './tasks/DoSomething';

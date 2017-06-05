@@ -20,7 +20,7 @@ var machine_id = 'none';
 
 
 socket.on('connect', function () {
-    console.log('connect');
+    console.log('connect2');
 
 
 
@@ -42,6 +42,15 @@ setInterval(function () {
     os.cpuUsage(function(v) {
         socket.emit('cpu', Math.round(v * 100))
     });
+
+    socket.emit('memory', Math.round((os.totalmem() - os.freemem()) * 100 / os.totalmem()));
+
+    // console.log('freemem', os.freemem());
+    // console.log('totalmem', os.totalmem());
+
+    // os.freeCommand(function (v) {
+    //     console.log('memory ' + v);
+    // });
 }, 1000);
 
 
