@@ -6,7 +6,7 @@ var http = require('http');
 var express = require('express');
 var SocketIO = require('socket.io');
 
-// const Machine = require('./Machine.js');
+var Machine = require('./Machine.js');
 // const View = require('./View.js');
 
 var app = express();
@@ -47,7 +47,7 @@ io.on('connection', function (socket) {
         console.log(currentUser);
 
         machines[machine] = socket.id;
-    } else {
+    } else if (socket.handshake.query.type === 'number') {} else {
         var _currentUser = {
             id: socket.id
         };

@@ -6,7 +6,7 @@ const http = require('http');
 const express = require('express');
 const SocketIO = require('socket.io');
 
-// const Machine = require('./Machine.js');
+const Machine = require('./Machine.js');
 // const View = require('./View.js');
 
 const app = express();
@@ -41,7 +41,7 @@ io.on('connection', socket => {
     var clientIp = socket.request.connection.remoteAddress;
     let machine = socket.handshake.query.machine;
 
-    if(socket.handshake.query.type === 'machine') {
+    if (socket.handshake.query.type === 'machine') {
         
         var currentUser = {
             id: socket.id,
@@ -52,6 +52,7 @@ io.on('connection', socket => {
 
 
         machines[machine] = socket.id;
+    } else if(socket.handshake.query.type === 'number') {
         
     } else {
         let currentUser = {
