@@ -33,63 +33,55 @@ var sockets = {};
 io.set('origins', '*:*');
 
 io.on('connection', function (socket) {
-    console.log('[connection]');
+
     var clientIp = socket.request.connection.remoteAddress;
     var machine = socket.handshake.query.machine;
 
+    var currentUser = {};
     if (socket.handshake.query.type === 'machine') {
-
-        var currentUser = {
-            id: socket.id,
-            machine: machine
-        };
-
-        console.log(currentUser);
-
         machines[machine] = socket.id;
-    } else if (socket.handshake.query.type === 'number') {} else {
-        var _currentUser = {
-            id: socket.id
-        };
-
-        console.log(_currentUser);
-
+    } else if (socket.handshake.query.type === 'number') {
+        currentUser.number = socket.handshake.query.number;
+    } else {
         views.push(socket);
     }
 
+    console.log('[connection]', socket.id);
+
+    currentUser.id = socket.id;
+    currentUser.machine = machine;
     sockets[socket.id] = machine;
 
     socket.emit('registred', socket.id);
 
     socket.on('cpu', function (data) {
-        console.log('CPU Usage (%): ' + sockets[socket.id] + '-' + data);
+        // console.log( 'CPU Usage (%): '+ sockets[socket.id]+'-'  + data );
 
         machine = sockets[socket.id];
 
-        views.forEach(function (socket) {
+        views.forEach(function (view) {
 
             var json = {
                 machine: machine,
                 cpu: data
             };
             console.log(json);
-            socket.emit('get_cpu', json);
+            view.emit('get_cpu', json);
         });
     });
 
     socket.on('memory', function (data) {
-        console.log('Memory Usage (%): ' + sockets[socket.id] + '-' + data);
+        // console.log( 'Memory Usage (%): '+ sockets[socket.id]+'-'  + data );
 
         machine = sockets[socket.id];
 
-        views.forEach(function (socket) {
-
+        views.forEach(function (view) {
             var json = {
                 machine: machine,
                 memory: data
             };
             console.log(json);
-            socket.emit('get_memory', json);
+            view.emit('get_memory', json);
         });
     });
 
@@ -119,6 +111,17 @@ io.on('connection', function (socket) {
         // if (findIndex(users, currentUser.id) > -1) users.splice(findIndex(users, currentUser.id), 1);
         // console.log('[INFO] User ' + currentUser.nick + ' disconnected!');
         // socket.broadcast.emit('userDisconnect', {nick: currentUser.nick});
+    });
+
+    socket.on('send_status', function (data) {
+        // console.log(currentUser);
+        console.log('send_status: ' + currentUser.number + ' - "' + data + '"');
+        views.forEach(function (view) {
+            view.emit('get_status', {
+                number: currentUser.number,
+                status: data
+            });
+        });
     });
 });
 

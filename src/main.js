@@ -37,33 +37,23 @@ const sockets  = {};
 io.set('origins', '*:*');
 
 io.on('connection', socket => {
-    console.log('[connection]')
+    
     var clientIp = socket.request.connection.remoteAddress;
     let machine = socket.handshake.query.machine;
 
+    const currentUser = {};
     if (socket.handshake.query.type === 'machine') {
-        
-        var currentUser = {
-            id: socket.id,
-            machine
-        };
-
-        console.log(currentUser);
-
-
         machines[machine] = socket.id;
     } else if(socket.handshake.query.type === 'number') {
-        
+        currentUser.number = socket.handshake.query.number
     } else {
-        let currentUser = {
-            id: socket.id,
-        };
-
-        console.log(currentUser);
-
         views.push(socket);
     }
 
+    console.log('[connection]', socket.id);
+
+    currentUser.id = socket.id;
+    currentUser.machine = machine;
     sockets[socket.id] = machine;
 
 
@@ -71,34 +61,33 @@ io.on('connection', socket => {
     socket.emit('registred', socket.id);
 
     socket.on('cpu', (data) => {
-        console.log( 'CPU Usage (%): '+ sockets[socket.id]+'-'  + data );
+        // console.log( 'CPU Usage (%): '+ sockets[socket.id]+'-'  + data );
 
         machine = sockets[socket.id];
 
-        views.forEach(socket => {
+        views.forEach(view => {
 
             let json = {
                 machine,
                 cpu: data
             };
             console.log(json);
-            socket.emit('get_cpu', json);
+            view.emit('get_cpu', json);
         }); 
     });
 
     socket.on('memory', (data) => {
-        console.log( 'Memory Usage (%): '+ sockets[socket.id]+'-'  + data );
+        // console.log( 'Memory Usage (%): '+ sockets[socket.id]+'-'  + data );
 
         machine = sockets[socket.id];
 
-        views.forEach(socket => {
-
+        views.forEach(view => {
             let json = {
                 machine,
                 memory: data
             };
             console.log(json);
-            socket.emit('get_memory', json);
+            view.emit('get_memory', json);
         }); 
     });
 
@@ -131,6 +120,17 @@ io.on('connection', socket => {
         // socket.broadcast.emit('userDisconnect', {nick: currentUser.nick});
     });
 
+
+    socket.on('send_status', (data) => {
+        // console.log(currentUser);
+        console.log(`send_status: ${currentUser.number} - "${data}"`);
+        views.forEach(view => {
+            view.emit('get_status', {
+                number: currentUser.number,
+                status: data
+            });
+        });      
+    });
 
 });
 
