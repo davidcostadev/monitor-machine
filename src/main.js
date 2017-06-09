@@ -33,6 +33,7 @@ console.log('before');
 const machines = {};
 const views    = [];
 const sockets  = {};
+const last_status = {};
 
 io.set('origins', '*:*');
 
@@ -46,8 +47,33 @@ io.on('connection', socket => {
         machines[machine] = socket.id;
     } else if(socket.handshake.query.type === 'number') {
         currentUser.number = socket.handshake.query.number
+
+        // console.log(currentUser);
+        views.forEach(view => {
+            view.emit('get_status', {
+                number: currentUser.number,
+                status: 'esperando'
+            });
+        });
+
+
+
     } else {
         views.push(socket);
+
+        views.forEach(view => {
+
+            for (var number in last_status) {
+                var status = last_status[number];
+
+                view.emit('get_status', {
+                    number: number,
+                    status: status
+                });
+            }
+ 
+        });
+        // last_status[currentUser.number] = data;
     }
 
     console.log('[connection]', socket.id);
@@ -100,9 +126,18 @@ io.on('connection', socket => {
         console.log(socket.id);
 
         const old = socket.id;
-        if (socket.handshake.query.type === 'machine') { 
+        if (socket.handshake.query.type === 'machine') {
             delete machines[socket.handshake.query.machine];
             delete sockets[socket.id];
+        } else if (socket.handshake.query.type === 'number') {
+            
+            // console.log(currentUser);
+            views.forEach(view => {
+                view.emit('get_status', {
+                    number: currentUser.number,
+                    status: 'off'
+                });
+            });
         } else {
             let indexDelete = 0;
             views.forEach((socket, index) => {
@@ -124,6 +159,10 @@ io.on('connection', socket => {
     socket.on('send_status', (data) => {
         // console.log(currentUser);
         console.log(`send_status: ${currentUser.number} - "${data}"`);
+
+        last_status[currentUser.number] = data;
+
+
         views.forEach(view => {
             view.emit('get_status', {
                 number: currentUser.number,
