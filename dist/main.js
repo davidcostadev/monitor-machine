@@ -116,11 +116,15 @@ io.on('connection', function (socket) {
         } else if (socket.handshake.query.type === 'number') {
 
             // console.log(currentUser);
+            var json = {
+                number: currentUser.number,
+                status: data,
+                time: new Date().getTime()
+            };
+            last_status[currentUser.number] = json;
+
             views.forEach(function (view) {
-                view.emit('get_status', {
-                    number: currentUser.number,
-                    status: 'off'
-                });
+                view.emit('get_status', json);
             });
         } else {
             var indexDelete = 0;

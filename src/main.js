@@ -125,11 +125,15 @@ io.on('connection', socket => {
         } else if (socket.handshake.query.type === 'number') {
             
             // console.log(currentUser);
+            let json = {
+                number: currentUser.number,
+                status: data,
+                time: new Date().getTime()
+            };
+            last_status[currentUser.number] = json;
+
             views.forEach(view => {
-                view.emit('get_status', {
-                    number: currentUser.number,
-                    status: 'off'
-                });
+                view.emit('get_status', json);
             });
         } else {
             let indexDelete = 0;
@@ -153,19 +157,17 @@ io.on('connection', socket => {
         // console.log(currentUser);
         console.log(`send_status: ${currentUser.number} - "${data}"`);
 
-        last_status[currentUser.number] = {
+        let = {
             number: currentUser.number,
             status: data,
             time: new Date().getTime()
         };
 
+        last_status[currentUser.number] = json;
+
 
         views.forEach(view => {
-            view.emit('get_status', {
-                number: currentUser.number,
-                status: data,
-                time: new Date().getTime()
-            });
+            view.emit('get_status', json);
         });      
     });
 
