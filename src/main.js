@@ -157,7 +157,7 @@ io.on('connection', socket => {
         // console.log(currentUser);
         console.log(`send_status: ${currentUser.number} - "${data}"`);
 
-        let = {
+        let json = {
             number: currentUser.number,
             status: data,
             time: new Date().getTime()
