@@ -118,7 +118,7 @@ io.on('connection', function (socket) {
             // console.log(currentUser);
             var json = {
                 number: currentUser.number,
-                status: data,
+                status: 'off',
                 time: new Date().getTime()
             };
             last_status[currentUser.number] = json;
@@ -146,18 +146,16 @@ io.on('connection', function (socket) {
         // console.log(currentUser);
         console.log('send_status: ' + currentUser.number + ' - "' + data + '"');
 
-        last_status[currentUser.number] = {
+        var json = {
             number: currentUser.number,
             status: data,
             time: new Date().getTime()
         };
 
+        last_status[currentUser.number] = json;
+
         views.forEach(function (view) {
-            view.emit('get_status', {
-                number: currentUser.number,
-                status: data,
-                time: new Date().getTime()
-            });
+            view.emit('get_status', json);
         });
     });
 });
