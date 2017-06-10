@@ -54,17 +54,18 @@ io.on('connection', function (socket) {
     } else {
         views.push(socket);
 
-        views.forEach(function (view) {
+        // views.forEach(view => {
 
-            for (var number in last_status) {
-                var status = last_status[number];
+        for (var number in last_status) {
+            var status = last_status[number];
 
-                view.emit('get_status', {
-                    number: number,
-                    status: status
-                });
-            }
-        });
+            socket.emit('get_status', {
+                number: number,
+                status: status
+            });
+        }
+
+        // });
         // last_status[currentUser.number] = data;
     }
 
@@ -77,8 +78,6 @@ io.on('connection', function (socket) {
     socket.emit('registred', socket.id);
 
     socket.on('cpu', function (data) {
-        // console.log( 'CPU Usage (%): '+ sockets[socket.id]+'-'  + data );
-
         machine = sockets[socket.id];
 
         views.forEach(function (view) {
@@ -93,8 +92,6 @@ io.on('connection', function (socket) {
     });
 
     socket.on('memory', function (data) {
-        // console.log( 'Memory Usage (%): '+ sockets[socket.id]+'-'  + data );
-
         machine = sockets[socket.id];
 
         views.forEach(function (view) {

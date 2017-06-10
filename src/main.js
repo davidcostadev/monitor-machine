@@ -61,18 +61,18 @@ io.on('connection', socket => {
     } else {
         views.push(socket);
 
-        views.forEach(view => {
+        // views.forEach(view => {
 
             for (var number in last_status) {
                 var status = last_status[number];
 
-                view.emit('get_status', {
+                socket.emit('get_status', {
                     number: number,
                     status: status
                 });
             }
  
-        });
+        // });
         // last_status[currentUser.number] = data;
     }
 
@@ -87,8 +87,6 @@ io.on('connection', socket => {
     socket.emit('registred', socket.id);
 
     socket.on('cpu', (data) => {
-        // console.log( 'CPU Usage (%): '+ sockets[socket.id]+'-'  + data );
-
         machine = sockets[socket.id];
 
         views.forEach(view => {
@@ -103,8 +101,6 @@ io.on('connection', socket => {
     });
 
     socket.on('memory', (data) => {
-        // console.log( 'Memory Usage (%): '+ sockets[socket.id]+'-'  + data );
-
         machine = sockets[socket.id];
 
         views.forEach(view => {
