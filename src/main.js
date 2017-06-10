@@ -66,10 +66,7 @@ io.on('connection', socket => {
             for (var number in last_status) {
                 var status = last_status[number];
 
-                socket.emit('get_status', {
-                    number: number,
-                    status: status
-                });
+                socket.emit('get_status', status);
             }
  
         // });
