@@ -99,7 +99,7 @@ io.on('connection', function (socket) {
                 machine: machine,
                 memory: data
             };
-            console.log(json);
+            // console.log(json);
             view.emit('get_memory', json);
         });
     });

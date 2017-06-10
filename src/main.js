@@ -108,7 +108,7 @@ io.on('connection', socket => {
                 machine,
                 memory: data
             };
-            console.log(json);
+            // console.log(json);
             view.emit('get_memory', json);
         }); 
     });
