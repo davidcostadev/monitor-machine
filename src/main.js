@@ -48,15 +48,16 @@ io.on('connection', socket => {
     } else if(socket.handshake.query.type === 'number') {
         currentUser.number = socket.handshake.query.number
 
-        // console.log(currentUser);
+        let json = {
+            number: currentUser.number,
+            status: 'esperando',
+            time: new Date().getTime()
+        };
+        last_status[currentUser.number] = json;
+
         views.forEach(view => {
-            view.emit('get_status', {
-                number: currentUser.number,
-                status: 'esperando'
-            });
+            view.emit('get_status', json);
         });
-
-
 
     } else {
         views.push(socket);
