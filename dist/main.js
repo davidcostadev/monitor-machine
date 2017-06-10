@@ -86,7 +86,7 @@ io.on('connection', function (socket) {
                 machine: machine,
                 cpu: data
             };
-            console.log(json);
+            // console.log(json);
             view.emit('get_cpu', json);
         });
     });
