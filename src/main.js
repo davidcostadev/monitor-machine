@@ -156,13 +156,18 @@ io.on('connection', socket => {
         // console.log(currentUser);
         console.log(`send_status: ${currentUser.number} - "${data}"`);
 
-        last_status[currentUser.number] = data;
+        last_status[currentUser.number] = {
+            number: currentUser.number,
+            status: data,
+            time: new Date().getTime()
+        };
 
 
         views.forEach(view => {
             view.emit('get_status', {
                 number: currentUser.number,
-                status: data
+                status: data,
+                time: new Date().getTime()
             });
         });      
     });
