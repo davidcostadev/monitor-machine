@@ -127,7 +127,7 @@ io.on('connection', socket => {
             // console.log(currentUser);
             let json = {
                 number: currentUser.number,
-                status: data,
+                status: 'off',
                 time: new Date().getTime()
             };
             last_status[currentUser.number] = json;
