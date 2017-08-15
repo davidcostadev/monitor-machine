@@ -30,6 +30,7 @@ var machines = {};
 var views = [];
 var sockets = {};
 var last_status = {};
+var numbers = {};
 
 io.set('origins', '*:*');
 
@@ -43,6 +44,8 @@ io.on('connection', function (socket) {
         machines[machine] = socket.id;
     } else if (socket.handshake.query.type === 'number') {
         currentUser.number = socket.handshake.query.number;
+
+        numbers[currentUser.number] = socket;
 
         // console.log(currentUser);
         views.forEach(function (view) {
@@ -69,6 +72,7 @@ io.on('connection', function (socket) {
     }
 
     console.log('[connection]', socket.id);
+    console.log('balanco', Object.keys(sockets).length, Object.keys(machines).length, Object.keys(numbers).length, views.length);
 
     currentUser.id = socket.id;
     currentUser.machine = machine;
@@ -93,8 +97,6 @@ io.on('connection', function (socket) {
     });
 
     socket.on('memory', function (data) {
-        // console.log( 'Memory Usage (%): '+ sockets[socket.id]+'-'  + data );
-
         machine = sockets[socket.id];
 
         views.forEach(function (view) {
@@ -112,15 +114,35 @@ io.on('connection', function (socket) {
         socket.emit('myPong');
     });
 
+    socket.on('pingApp_dashboard', function (number) {
+        console.log('on pingApp_dashboard', number);
+
+        if (typeof numbers[number] === 'undefined') return;
+
+        var numberSocket = numbers[number];
+
+        numberSocket.emit('pingApp', number, function (number) {
+            console.log('SOCKET', 'pongApp');
+        });
+    });
+
+    socket.on('pongApp', function (number) {
+        views.forEach(function (view) {
+            console.log('SOCKET', 'pongApp_dashboard', number);
+            view.emit('pongApp_dashboard', number);
+        });
+    });
+
     socket.on('disconnect', function () {
-        console.log(socket.id);
 
         var old = socket.id;
-        if (socket.handshake.query.type === 'machine') {
-            delete machines[socket.handshake.query.machine];
-            delete sockets[socket.id];
-        } else if (socket.handshake.query.type === 'number') {
+        delete sockets[socket.id];
 
+        if (socket.handshake.query.type === 'machine') {
+            console.log('disconnect', socket.id, 'machine', socket.handshake.query.machine);
+            delete machines[socket.handshake.query.machine];
+        } else if (socket.handshake.query.type === 'number') {
+            console.log('disconnect', socket.id, 'number', socket.handshake.query.number);
             // console.log(currentUser);
             views.forEach(function (view) {
                 view.emit('get_status', {
@@ -128,7 +150,9 @@ io.on('connection', function (socket) {
                     status: 'off'
                 });
             });
+            delete numbers[socket.handshake.query.number];
         } else {
+            console.log('disconnect', socket.id, 'view');
             var indexDelete = 0;
             views.forEach(function (socket, index) {
                 if (old == socket.id) {
@@ -139,9 +163,12 @@ io.on('connection', function (socket) {
             views.splice(indexDelete, 1);
         }
 
+        console.log('balanco', Object.keys(sockets).length, Object.keys(machines).length, Object.keys(numbers).length, views.length
+
         // if (findIndex(users, currentUser.id) > -1) users.splice(findIndex(users, currentUser.id), 1);
         // console.log('[INFO] User ' + currentUser.nick + ' disconnected!');
         // socket.broadcast.emit('userDisconnect', {nick: currentUser.nick});
+        );
     });
 
     socket.on('send_status', function (data) {
