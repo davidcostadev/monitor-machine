@@ -18,11 +18,12 @@ console.log(config);
 
 var machine_id = 'none';
 
+var status = false;
 
 socket.on('connect', function () {
     console.log('connect2');
 
-
+    status = true;
 
 });
 
@@ -35,23 +36,20 @@ socket.on('registred', function (socket_id) {
 
 socket.on('disconnect', function () {
     console.log('disconnect')
+
+    status = false;
 });
 
 setInterval(function () {
-    // console.log(machine_id);
-    os.cpuUsage(function(v) {
-        socket.emit('cpu', Math.round(v * 100))
-    });
+    if (status) {
+         os.cpuUsage(function(v) {
+            socket.emit('cpu', Math.round(v * 100))
+        });
 
-    socket.emit('memory', Math.round((os.totalmem() - os.freemem()) * 100 / os.totalmem()));
-
-    // console.log('freemem', os.freemem());
-    // console.log('totalmem', os.totalmem());
-
-    // os.freeCommand(function (v) {
-    //     console.log('memory ' + v);
-    // });
-}, 1000);
+        socket.emit('memory', Math.round((os.totalmem() - os.freemem()) * 100 / os.totalmem()));
+    }
+   
+}, 5000);
 
 
 

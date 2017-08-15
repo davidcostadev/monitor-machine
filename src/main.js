@@ -51,29 +51,29 @@ io.on('connection', socket => {
 
         numbers[currentUser.number] = socket;
 
-        // console.log(currentUser);
+        let json = {
+            number: currentUser.number,
+            status: 'esperando',
+            time: new Date().getTime()
+        };
+        last_status[currentUser.number] = json;
+
         views.forEach(view => {
-            view.emit('get_status', {
-                number: currentUser.number,
-                status: 'esperando'
-            });
+            view.emit('get_status', json);
         });
         
     } else {
         views.push(socket);
 
-        views.forEach(view => {
+        // views.forEach(view => {
 
             for (var number in last_status) {
                 var status = last_status[number];
 
-                view.emit('get_status', {
-                    number: number,
-                    status: status
-                });
+                socket.emit('get_status', status);
             }
  
-        });
+        // });
         // last_status[currentUser.number] = data;
     }
 
@@ -89,8 +89,6 @@ io.on('connection', socket => {
     socket.emit('registred', socket.id);
 
     socket.on('cpu', (data) => {
-        // console.log( 'CPU Usage (%): '+ sockets[socket.id]+'-'  + data );
-
         machine = sockets[socket.id];
 
         views.forEach(view => {
@@ -99,7 +97,7 @@ io.on('connection', socket => {
                 machine,
                 cpu: data
             };
-            console.log(json);
+            // console.log(json);
             view.emit('get_cpu', json);
         }); 
     });
@@ -112,7 +110,7 @@ io.on('connection', socket => {
                 machine,
                 memory: data
             };
-            console.log(json);
+            // console.log(json);
             view.emit('get_memory', json);
         }); 
     });
@@ -156,11 +154,15 @@ io.on('connection', socket => {
         } else if (socket.handshake.query.type === 'number') {
             console.log('disconnect', socket.id, 'number', socket.handshake.query.number);
             // console.log(currentUser);
+            let json = {
+                number: currentUser.number,
+                status: 'off',
+                time: new Date().getTime()
+            };
+            last_status[currentUser.number] = json;
+
             views.forEach(view => {
-                view.emit('get_status', {
-                    number: currentUser.number,
-                    status: 'off'
-                });
+                view.emit('get_status', json);
             });
             delete numbers[socket.handshake.query.number];
         } else {
@@ -188,14 +190,17 @@ io.on('connection', socket => {
         // console.log(currentUser);
         console.log(`send_status: ${currentUser.number} - "${data}"`);
 
-        last_status[currentUser.number] = data;
+        let json = {
+            number: currentUser.number,
+            status: data,
+            time: new Date().getTime()
+        };
+
+        last_status[currentUser.number] = json;
 
 
         views.forEach(view => {
-            view.emit('get_status', {
-                number: currentUser.number,
-                status: data
-            });
+            view.emit('get_status', json);
         });      
     });
 
